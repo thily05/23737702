@@ -1,31 +1,78 @@
-import React from 'react';
-import { TextInput, View, StyleSheet, TextInputProps } from 'react-native';
+import React, { memo } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
+
+// Bỏ ngoặc nhọn đi vì Typography của bạn đang dùng export default
+import Typography from './Typography';
 import { useTheme } from '@contexts/ThemeContext';
-import { Typography } from './Typography';
 
-interface ShopInputProps extends TextInputProps {
-    error?: boolean;
+type ShopInputProps = {
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder?: string;
     label?: string;
-}
+    error?: string | boolean;
+};
 
-export const ShopInput = ({ error, label, ...props }: ShopInputProps) => {
+const ShopInput = ({
+    value,
+    onChangeText,
+    placeholder,
+    label,
+    error,
+}: ShopInputProps) => {
     const { colors } = useTheme();
+
     return (
         <View style={styles.container}>
-            {label && <Typography>{label}</Typography>}
+            {label && (
+                <Typography
+                    variant="caption"
+                    style={styles.label}
+                >
+                    {label}
+                </Typography>
+            )}
+
             <TextInput
+                value={value}
+                onChangeText={onChangeText}
+                placeholder={placeholder}
+                placeholderTextColor={colors.textLight}
                 style={[
                     styles.input,
-                    { color: colors.text, borderColor: error ? colors.error : colors.border, backgroundColor: colors.surface }
+                    {
+                        color: colors.text,
+                        backgroundColor: colors.surface,
+                        borderColor: error ? colors.error : colors.border,
+                    }
                 ]}
-                placeholderTextColor={colors.textLight}
-                {...props}
             />
+
+            {typeof error === 'string' && (
+                <Typography
+                    variant="caption"
+                    color={colors.error}
+                >
+                    {error}
+                </Typography>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { marginVertical: 8 },
-    input: { borderWidth: 1, borderRadius: 8, padding: 12, fontSize: 16 },
+    container: {
+        marginBottom: 16,
+    },
+    label: {
+        marginBottom: 4,
+    },
+    input: {
+        height: 46,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 12,
+    },
 });
+
+export default memo(ShopInput);

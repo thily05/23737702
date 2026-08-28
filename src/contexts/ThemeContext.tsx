@@ -1,21 +1,56 @@
-import React, { createContext, useContext, useState } from 'react';
-import { COLORS } from '@constants/theme';
+import React, {
+    createContext,
+    useContext,
+    useMemo,
+    useState,
+} from 'react';
 
-type ThemeType = 'light' | 'dark';
+import {
+    COLORS,
+    DARK_COLORS,
+} from '@constants/theme';
+
 type ThemeContextType = {
-    theme: ThemeType;
-    colors: typeof COLORS.light;
+    isDark: boolean;
     toggleTheme: () => void;
+    colors: typeof COLORS;
 };
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext =
+    createContext<ThemeContextType | undefined>(
+        undefined,
+    );
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-    const [theme, setTheme] = useState<ThemeType>('light');
-    const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+export const ThemeProvider = ({
+    children,
+}: {
+    children: React.ReactNode;
+}) => {
+    const [isDark, setIsDark] = useState(false);
+
+    const toggleTheme = () => {
+        setIsDark(prev => !prev);
+    };
+
+    const colors = useMemo(
+        () => ({
+            ...COLORS,
+            ...(isDark ? DARK_COLORS : {}),
+        }),
+        [isDark],
+    );
+
+    const value = useMemo(
+        () => ({
+            isDark,
+            toggleTheme,
+            colors,
+        }),
+        [isDark, colors],
+    );
 
     return (
-        <ThemeContext.Provider value={{ theme, colors: COLORS[theme], toggleTheme }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );
@@ -23,6 +58,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);
-    if (!context) throw new Error('useTheme must be used within a ThemeProvider');
+
+    if (!context) {
+        throw new Error(
+            'useTheme must be used inside ThemeProvider',
+        );
+    }
+
     return context;
 };
