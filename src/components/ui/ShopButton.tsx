@@ -1,88 +1,69 @@
-import React, { memo } from 'react';
-import {
-    ActivityIndicator,
-    Pressable,
-    StyleSheet,
-} from 'react-native';
-
+import React from 'react';
+import { Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import Typography from './Typography';
-import { COLORS, SIZES } from '@constants/theme';
 
-type Props = {
+interface ShopButtonProps {
     title: string;
     onPress: () => void;
     isLoading?: boolean;
-    disabled?: boolean;
     variant?: 'primary' | 'outline';
-};
+    disabled?: boolean;
+}
 
-const ShopButton = ({
+export default function ShopButton({
     title,
     onPress,
-    isLoading = false,
-    disabled = false,
+    isLoading,
     variant = 'primary',
-}: Props) => {
-    const isDisabled = disabled || isLoading;
+    disabled,
+}: ShopButtonProps) {
+    const isPrimary = variant === 'primary';
 
     return (
         <Pressable
-            onPress={onPress}
-            disabled={isDisabled}
             style={[
-                styles.base,
-                variant === 'primary'
-                    ? styles.primary
-                    : styles.outline,
-                isDisabled && styles.disabled,
+                styles.button,
+                isPrimary ? styles.primaryBg : styles.outlineBg,
+                disabled && styles.disabled,
             ]}
+            onPress={onPress}
+            disabled={disabled || isLoading}
         >
             {isLoading ? (
-                <ActivityIndicator
-                    color={
-                        variant === 'primary'
-                            ? COLORS.surface
-                            : COLORS.primary
-                    }
-                />
+                <ActivityIndicator color={isPrimary ? '#FFFFFF' : '#0F766E'} />
             ) : (
                 <Typography
-                    variant="button"
-                    color={
-                        variant === 'primary'
-                            ? COLORS.surface
-                            : COLORS.primary
-                    }
+                    variant="regular"
+                    color={isPrimary ? '#FFFFFF' : '#0F766E'}
+                    style={styles.text}
                 >
                     {title}
                 </Typography>
             )}
         </Pressable>
     );
-};
+}
 
 const styles = StyleSheet.create({
-    base: {
-        minHeight: 44,
-        borderRadius: SIZES.radius,
-        alignItems: 'center',
+    button: {
+        height: 42,
+        borderRadius: 8,
         justifyContent: 'center',
-        paddingHorizontal: SIZES.lg,
-    },
-
-    primary: {
-        backgroundColor: COLORS.primary,
-    },
-
-    outline: {
+        alignItems: 'center',
+        paddingHorizontal: 16,
         borderWidth: 1,
-        borderColor: COLORS.primary,
-        backgroundColor: COLORS.surface,
+        borderColor: '#0F766E',
     },
-
+    primaryBg: {
+        backgroundColor: '#0F766E',
+    },
+    outlineBg: {
+        backgroundColor: 'transparent',
+    },
     disabled: {
-        opacity: 0.5,
+        opacity: 0.6,
+    },
+    text: {
+        fontWeight: '600',
     },
 });
-
-export default memo(ShopButton);

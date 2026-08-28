@@ -1,56 +1,23 @@
-import React, {
-    createContext,
-    useContext,
-    useMemo,
-    useState,
-} from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-import {
-    COLORS,
-    DARK_COLORS,
-} from '@constants/theme';
+type ThemeType = 'light' | 'dark';
 
-type ThemeContextType = {
-    isDark: boolean;
+interface ThemeContextType {
+    theme: ThemeType;
     toggleTheme: () => void;
-    colors: typeof COLORS;
-};
+}
 
-const ThemeContext =
-    createContext<ThemeContextType | undefined>(
-        undefined,
-    );
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider = ({
-    children,
-}: {
-    children: React.ReactNode;
-}) => {
-    const [isDark, setIsDark] = useState(false);
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [theme, setTheme] = useState<ThemeType>('light');
 
     const toggleTheme = () => {
-        setIsDark(prev => !prev);
+        setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
     };
 
-    const colors = useMemo(
-        () => ({
-            ...COLORS,
-            ...(isDark ? DARK_COLORS : {}),
-        }),
-        [isDark],
-    );
-
-    const value = useMemo(
-        () => ({
-            isDark,
-            toggleTheme,
-            colors,
-        }),
-        [isDark, colors],
-    );
-
     return (
-        <ThemeContext.Provider value={value}>
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );
@@ -58,12 +25,8 @@ export const ThemeProvider = ({
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);
-
     if (!context) {
-        throw new Error(
-            'useTheme must be used inside ThemeProvider',
-        );
+        throw new Error('useTheme must be used within a ThemeProvider');
     }
-
     return context;
 };
